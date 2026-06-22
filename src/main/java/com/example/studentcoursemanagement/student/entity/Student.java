@@ -38,8 +38,8 @@ public class Student extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   @NotNull
-  public EStudentStatus status;
+  public EStudentStatus status = EStudentStatus.STUDYING;
 
   @Column(nullable = false, precision = 3, scale = 2)
-  public BigDecimal gpa;
+  public BigDecimal gpa = BigDecimal.ZERO;
 }
