@@ -1,74 +1,115 @@
-# hcmus-student-course-management
+# HCMUS Student Course Management
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Backend service for managing students and majors, built with Quarkus, PostgreSQL, Flyway, and Hibernate ORM (Panache).
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+## Tech stack
 
-## Running the application in dev mode
+- Java 21
+- Quarkus 3.36.3
+- Maven Wrapper (`./mvnw`)
+- PostgreSQL
+- Flyway migrations
+- Hibernate ORM + Panache
 
-You can run your application in dev mode that enables live coding using:
-```shell script
+## Current project scope
+
+The current codebase includes:
+
+- Domain model for `Major` and `Student`
+- Enum constraints for student `gender` and `status`
+- Flyway migrations for database initialization
+- A sample REST endpoint: `GET /hello`
+
+## Prerequisites
+
+- JDK 21
+- Docker + Docker Compose (recommended for local database and app)
+
+## Configuration
+
+Application config is in `src/main/resources/application.properties`.
+
+Default database values:
+
+- `DB_USERNAME=postgres`
+- `DB_PASSWORD=postgres`
+- `DB_JDBC_URL=jdbc:postgresql://localhost:5432/student_course_management`
+
+You can override them by exporting environment variables before starting the app.
+
+## Run locally (dev mode)
+
+Start Quarkus in live reload mode:
+
+```bash
 ./mvnw compile quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+Useful local URLs:
 
-## Packaging and running the application
+- App: `http://localhost:8080`
+- Dev UI: `http://localhost:8080/q/dev/`
+- Sample endpoint: `http://localhost:8080/hello`
 
-The application can be packaged using:
-```shell script
+## Run with Docker Compose
+
+This starts both PostgreSQL and the app:
+
+```bash
+docker compose up --build
+```
+
+Services defined in `docker-compose.yml`:
+
+- `postgres` on port `5432`
+- `app` on port `8080`
+
+Stop services:
+
+```bash
+docker compose down
+```
+
+## Build and test
+
+Run unit tests:
+
+```bash
+./mvnw test
+```
+
+Build package:
+
+```bash
 ./mvnw package
 ```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+Run packaged app:
 
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+```bash
+java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+## Database migrations
 
-## Creating a native executable
+Flyway scripts are in `src/main/resources/db/migration`:
 
-You can create a native executable using: 
-```shell script
-./mvnw package -Dnative
-```
+- `V2026_06_18_0001__init.sql`: creates `majors` and `students`
+- `V2026_06_18_0002__add_check_constraints_for_student_enums.sql`: adds enum check constraints
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+Migrations run automatically at startup via:
 
-You can then execute your native executable with: `./target/hcmus-student-course-management-0.0.1-SNAPSHOT-runner`
+- `quarkus.flyway.migrate-at-start=true`
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+## Main source folders
 
-## Related Guides
+- `src/main/java/com/example/studentcoursemanagement/common`
+- `src/main/java/com/example/studentcoursemanagement/major`
+- `src/main/java/com/example/studentcoursemanagement/student`
+- `src/main/resources/db/migration`
 
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplified JPA/Hibernate data access layer with active record and repository patterns
-- Flyway ([guide](https://quarkus.io/guides/flyway)): Handle your database schema migrations
-- REST ([guide](https://quarkus.io/guides/rest)): Build RESTful web services and APIs using Jakarta REST (formerly JAX-RS)
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
-- REST Jackson ([guide](https://quarkus.io/guides/rest#json-serialisation)): Jackson serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it
+## Reference
 
-## Provided Code
-
-### Hibernate ORM
-
-Create your first JPA entity
-
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
-
-
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
-
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+- Quarkus: https://quarkus.io/
+- Hibernate ORM with Panache: https://quarkus.io/guides/hibernate-orm-panache
+- Flyway: https://quarkus.io/guides/flyway
