@@ -1,0 +1,6 @@
+FROM maven:3.9.8-eclipse-temurin-21
+
+WORKDIR /app
+
+# Drop potentially stale dev artifacts, then format and launch Quarkus dev mode.
+CMD ["sh", "-c", "rm -rf target/quarkus target/classes target/test-classes && ./mvnw spotless:apply && ./mvnw quarkus:dev -Dquarkus.http.host=0.0.0.0"]

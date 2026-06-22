@@ -1,0 +1,3 @@
+ALTER TABLE students
+    ALTER COLUMN gpa SET DEFAULT 0.0;
+
