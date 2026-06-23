@@ -8,9 +8,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "students")
+@Builder(builderMethodName = "builder") // Tự sinh toàn bộ Builder Pattern
+@NoArgsConstructor // Bắt buộc cho JPA (Constructor 0 tham số)
+@AllArgsConstructor // Bắt buộc để @Builder hoạt động
 public class Student extends BaseEntity {
 
   @Id
@@ -39,8 +45,10 @@ public class Student extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   @NotNull
+  @Builder.Default
   public EStudentStatus status = EStudentStatus.STUDYING;
 
   @Column(nullable = false, precision = 3, scale = 2)
+  @Builder.Default
   public BigDecimal gpa = BigDecimal.ZERO;
 }

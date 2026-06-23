@@ -1,13 +1,17 @@
 package com.example.studentcoursemanagement.major.rest;
 
 import com.example.studentcoursemanagement.major.dto.request.CreateMajorRequest;
+import com.example.studentcoursemanagement.major.dto.request.UpdateMajorCreditsRequest;
 import com.example.studentcoursemanagement.major.dto.response.MajorResponse;
 import com.example.studentcoursemanagement.major.service.MajorService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -23,5 +27,18 @@ public class MajorResource {
   public Response createMajor(@Valid CreateMajorRequest request) {
     MajorResponse response = majorService.createMajor(request);
     return Response.status(Response.Status.CREATED).entity(response).build();
+  }
+
+  @PUT
+  @Path("/{id}/credits")
+  public Response updateMajorCredits(
+      @PathParam("id") Long id, @Valid UpdateMajorCreditsRequest request) {
+    MajorResponse response = majorService.updateMajorCredits(id, request);
+    return Response.ok(response).build();
+  }
+
+  @GET
+  public Response getAllMajors() {
+    return Response.ok(majorService.getAllMajors()).build();
   }
 }

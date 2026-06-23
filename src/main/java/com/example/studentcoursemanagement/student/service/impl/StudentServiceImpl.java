@@ -26,13 +26,15 @@ public class StudentServiceImpl implements StudentService {
   public StudentResponse createStudent(CreateStudentRequest request) {
     Major major = majorService.getMajorById(request.majorId());
 
-    Student student = new Student();
-    student.name = request.name().trim();
-    student.gender = request.gender();
-    student.major = major;
-    student.status = EStudentStatus.STUDYING;
-    student.gpa = BigDecimal.ZERO.setScale(2);
-    student.studentId = generateStudentId(major.entryYear, major.majorCode);
+    Student student =
+        Student.builder()
+            .name(request.name().trim())
+            .gender(request.gender())
+            .major(major)
+            .status(EStudentStatus.STUDYING)
+            .gpa(BigDecimal.ZERO.setScale(2))
+            .studentId(generateStudentId(major.entryYear, major.majorCode))
+            .build();
 
     studentRepository.persist(student);
 
