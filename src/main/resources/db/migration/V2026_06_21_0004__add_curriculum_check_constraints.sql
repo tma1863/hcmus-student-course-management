@@ -3,8 +3,8 @@ ALTER TABLE course_majors
     CHECK (credits BETWEEN 1 AND 10);
 
 ALTER TABLE course_majors
-    ADD CONSTRAINT chk_course_majors_semester
-    CHECK (semester IN (1, 2));
+    ADD CONSTRAINT chk_course_majors_program_semester
+    CHECK (program_semester BETWEEN 1 AND 10);
 
 ALTER TABLE open_courses
     ADD CONSTRAINT chk_open_courses_semester

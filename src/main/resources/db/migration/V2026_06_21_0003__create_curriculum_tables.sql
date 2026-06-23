@@ -15,8 +15,7 @@ CREATE TABLE course_majors (
 	course_id BIGINT NOT NULL,
 	major_id BIGINT NOT NULL,
 	credits INTEGER NOT NULL,
-	semester INTEGER NOT NULL,
-	academic_year VARCHAR(9) NOT NULL,
+	program_semester INTEGER NOT NULL,
 	created_at TIMESTAMP,
 	updated_at TIMESTAMP,
 	CONSTRAINT fk_course_majors_course_id
@@ -25,8 +24,8 @@ CREATE TABLE course_majors (
 	CONSTRAINT fk_course_majors_major_id
 		FOREIGN KEY (major_id)
 		REFERENCES majors (id),
-	CONSTRAINT uq_course_majors_course_major_year
-		UNIQUE (course_id, major_id, academic_year)
+	CONSTRAINT uq_course_majors_course_major
+		UNIQUE (course_id, major_id)
 );
 
 -- Prerequisites: a CourseMajor entry requires foundational Course(s)

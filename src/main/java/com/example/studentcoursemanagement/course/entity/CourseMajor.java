@@ -15,8 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
     name = "course_majors",
-    uniqueConstraints =
-        @UniqueConstraint(columnNames = {"course_id", "major_id", "academic_year"}))
+    uniqueConstraints = @UniqueConstraint(columnNames = {"course_id", "major_id"}))
 @Builder(builderMethodName = "builder")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,17 +39,12 @@ public class CourseMajor extends BaseEntity {
   @Max(10)
   public Integer credits;
 
-  @Column(nullable = false)
+  @Column(name = "program_semester", nullable = false)
   @NotNull
   @Min(1)
-  @Max(2)
-  public Integer semester;
+  @Max(10)
+  public Integer programSemester;
 
-  @Column(name = "academic_year", length = 9, nullable = false)
-  @NotNull
-  public String academicYear;
-
-  // Prerequisite Courses for THIS curriculum entry (major-scoped).
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "course_major_prerequisites",
