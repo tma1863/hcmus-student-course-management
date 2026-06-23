@@ -16,7 +16,7 @@ public class Major extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public Long id;
 
-  @Column(name = "major_code", length = 2, nullable = false)
+  @Column(name = "major_code", length = 2, nullable = false, updatable = false)
   @NotNull
   public String majorCode;
 
@@ -24,7 +24,7 @@ public class Major extends BaseEntity {
   @NotNull
   public String name;
 
-  @Column(name = "entry_year", length = 4, nullable = false)
+  @Column(name = "entry_year", length = 4, nullable = false, updatable = false)
   @NotNull
   public String entryYear;
 

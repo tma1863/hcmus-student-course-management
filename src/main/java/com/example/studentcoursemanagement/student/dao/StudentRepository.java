@@ -14,4 +14,3 @@ public class StudentRepository implements PanacheRepository<Student> {
         .map(student -> student.studentId);
   }
 }
-

@@ -18,7 +18,8 @@ public class Student extends BaseEntity {
   @Column(nullable = false, updatable = false)
   public UUID id;
 
-  // Đây là Business Key (Ví dụ: "21280001") dùng để hiển thị và tìm kiếm nhanh
+  // Đây là Business Key (Ví dụ: "21280001"), không phải là Primary Key, nhưng vẫn cần unique
+  // constraint để đảm bảo không có 2 sinh viên cùng mã sinh viên.
   @Column(name = "student_id", length = 8, nullable = false, updatable = false, unique = true)
   public String studentId;
 
@@ -32,7 +33,7 @@ public class Student extends BaseEntity {
   public EGender gender;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "major_id", nullable = false)
+  @JoinColumn(name = "major_id", nullable = false, updatable = false)
   public Major major;
 
   @Enumerated(EnumType.STRING)

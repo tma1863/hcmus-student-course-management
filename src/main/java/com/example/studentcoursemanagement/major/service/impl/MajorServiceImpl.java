@@ -6,6 +6,7 @@ import com.example.studentcoursemanagement.major.dao.MajorRepository;
 import com.example.studentcoursemanagement.major.dto.request.CreateMajorRequest;
 import com.example.studentcoursemanagement.major.dto.response.MajorResponse;
 import com.example.studentcoursemanagement.major.entity.Major;
+import com.example.studentcoursemanagement.major.mapper.MajorMapper;
 import com.example.studentcoursemanagement.major.service.MajorService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 public class MajorServiceImpl implements MajorService {
 
   @Inject MajorRepository majorRepository;
+  @Inject MajorMapper majorMapper;
 
   @Override
   @Transactional
@@ -35,7 +37,13 @@ public class MajorServiceImpl implements MajorService {
 
     majorRepository.persist(major);
 
-    return new MajorResponse(major.id, major.majorCode, major.entryYear, major.name);
+    return majorMapper.toResponse(major);
+  }
+
+  @Override
+  public Major getMajorById(Long id) {
+    return majorRepository
+        .findByIdOptional(id)
+        .orElseThrow(() -> new ApiException(ErrorCode.MAJOR_NOT_FOUND));
   }
 }
-

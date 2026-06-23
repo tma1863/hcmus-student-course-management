@@ -6,4 +6,3 @@ import com.example.studentcoursemanagement.student.dto.response.StudentResponse;
 public interface StudentService {
   StudentResponse createStudent(CreateStudentRequest request);
 }
-

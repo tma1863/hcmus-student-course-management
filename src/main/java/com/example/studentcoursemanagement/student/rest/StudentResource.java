@@ -25,4 +25,3 @@ public class StudentResource {
     return Response.status(Response.Status.CREATED).entity(response).build();
   }
 }
-

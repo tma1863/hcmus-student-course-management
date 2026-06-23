@@ -1,14 +1,13 @@
 package com.example.studentcoursemanagement.student.service.impl;
 
-import com.example.studentcoursemanagement.common.exception.ApiException;
-import com.example.studentcoursemanagement.common.exception.ErrorCode;
-import com.example.studentcoursemanagement.major.dao.MajorRepository;
 import com.example.studentcoursemanagement.major.entity.Major;
+import com.example.studentcoursemanagement.major.service.MajorService;
 import com.example.studentcoursemanagement.student.dao.StudentRepository;
 import com.example.studentcoursemanagement.student.dto.request.CreateStudentRequest;
 import com.example.studentcoursemanagement.student.dto.response.StudentResponse;
 import com.example.studentcoursemanagement.student.entity.Student;
 import com.example.studentcoursemanagement.student.enums.EStudentStatus;
+import com.example.studentcoursemanagement.student.mapper.StudentMapper;
 import com.example.studentcoursemanagement.student.service.StudentService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,43 +18,29 @@ import java.math.BigDecimal;
 public class StudentServiceImpl implements StudentService {
 
   @Inject StudentRepository studentRepository;
-  @Inject MajorRepository majorRepository;
+  @Inject MajorService majorService;
+  @Inject StudentMapper studentMapper;
 
   @Override
   @Transactional
   public StudentResponse createStudent(CreateStudentRequest request) {
-    String majorCode = request.majorCode().trim().toUpperCase();
-    String entryYear = request.entryYear().trim();
-
-    Major major =
-        majorRepository
-            .findByMajorCodeAndEntryYear(majorCode, entryYear)
-            .orElseThrow(() -> new ApiException(ErrorCode.MAJOR_NOT_FOUND));
+    Major major = majorService.getMajorById(request.majorId());
 
     Student student = new Student();
     student.name = request.name().trim();
     student.gender = request.gender();
     student.major = major;
     student.status = EStudentStatus.STUDYING;
-    student.gpa = BigDecimal.ZERO;
-    student.studentId = generateStudentId(entryYear, majorCode);
+    student.gpa = BigDecimal.ZERO.setScale(2);
+    student.studentId = generateStudentId(major.entryYear, major.majorCode);
 
     studentRepository.persist(student);
 
-    return new StudentResponse(
-        student.id,
-        student.studentId,
-        student.name,
-        student.gender,
-        student.major.majorCode,
-        student.major.entryYear,
-        student.status,
-        student.gpa);
+    return studentMapper.toResponse(student);
   }
 
   private String generateStudentId(String entryYear, String majorCode) {
-    String yearSuffix = entryYear.substring(entryYear.length() - 2);
-    String prefix = yearSuffix + majorCode;
+    String prefix = entryYear.substring(entryYear.length() - 2) + majorCode;
 
     int nextSequence =
         studentRepository
@@ -67,4 +52,3 @@ public class StudentServiceImpl implements StudentService {
     return prefix + String.format("%04d", nextSequence);
   }
 }
-

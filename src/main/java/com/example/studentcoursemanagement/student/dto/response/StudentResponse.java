@@ -14,4 +14,3 @@ public record StudentResponse(
     String entryYear,
     EStudentStatus status,
     BigDecimal gpa) {}
-

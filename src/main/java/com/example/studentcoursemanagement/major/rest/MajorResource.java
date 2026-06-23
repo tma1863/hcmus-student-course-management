@@ -25,4 +25,3 @@ public class MajorResource {
     return Response.status(Response.Status.CREATED).entity(response).build();
   }
 }
-
