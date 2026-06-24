@@ -1,7 +1,6 @@
 package com.example.studentcoursemanagement.major.entity;
 
 import com.example.studentcoursemanagement.common.util.BaseEntity;
-import com.example.studentcoursemanagement.student.entity.Student;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -12,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
     name = "majors",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"major_code", "entry_year"})})
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"major_code"})})
 @Builder(builderMethodName = "builder")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +21,7 @@ public class Major extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public Long id;
 
-  @Column(name = "major_code", length = 2, nullable = false, updatable = false)
+  @Column(name = "major_code", length = 2, nullable = false, updatable = false, unique = true)
   @NotNull
   public String majorCode;
 
@@ -30,16 +29,6 @@ public class Major extends BaseEntity {
   @NotNull
   public String name;
 
-  @Column(name = "entry_year", length = 4, nullable = false, updatable = false)
-  @NotNull
-  public String entryYear;
-
-  @Column(name = "total_required_credit", nullable = false)
-  public Integer totalRequiredCredit;
-
-  @Column(name = "total_optional_credit", nullable = false)
-  public Integer totalOptionalCredit;
-
   @OneToMany(mappedBy = "major", fetch = FetchType.LAZY)
-  public List<Student> students;
+  public List<MajorProgram> programs;
 }

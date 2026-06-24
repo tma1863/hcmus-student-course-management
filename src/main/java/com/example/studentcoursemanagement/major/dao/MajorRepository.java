@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class MajorRepository implements PanacheRepository<Major> {
 
-  public boolean existsByMajorCodeAndEntryYear(String majorCode, String entryYear) {
-    return count("majorCode = ?1 and entryYear = ?2", majorCode, entryYear) > 0;
+  public boolean existsByMajorCode(String majorCode) {
+    return count("majorCode = ?1", majorCode) > 0;
   }
 }

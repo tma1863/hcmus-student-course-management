@@ -1,7 +1,7 @@
 package com.example.studentcoursemanagement.course.entity;
 
 import com.example.studentcoursemanagement.common.util.BaseEntity;
-import com.example.studentcoursemanagement.major.entity.Major;
+import com.example.studentcoursemanagement.major.entity.MajorProgram;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
     name = "course_majors",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"course_id", "major_id"}))
+    uniqueConstraints = @UniqueConstraint(columnNames = {"course_id", "major_program_id"}))
 @Builder(builderMethodName = "builder")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,8 +30,8 @@ public class CourseMajor extends BaseEntity {
   public Course course;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "major_id", nullable = false, updatable = false)
-  public Major major;
+  @JoinColumn(name = "major_program_id", nullable = false, updatable = false)
+  public MajorProgram majorProgram;
 
   @Column(nullable = false)
   @NotNull

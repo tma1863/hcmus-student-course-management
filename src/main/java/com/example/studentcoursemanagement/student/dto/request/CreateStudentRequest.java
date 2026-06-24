@@ -6,4 +6,4 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record CreateStudentRequest(
-    @NotBlank String name, @NotNull EGender gender, @NotNull @Positive Long majorId) {}
+    @NotBlank String name, @NotNull EGender gender, @NotNull @Positive Long majorProgramId) {}

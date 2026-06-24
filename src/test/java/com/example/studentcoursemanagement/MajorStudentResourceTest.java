@@ -11,32 +11,58 @@ import org.junit.jupiter.api.Test;
 @QuarkusTest
 class MajorStudentResourceTest {
 
-  private long createMajor(String majorCode, String entryYear, String name) {
+  private long createMajor(String majorCode, String name) {
     return given()
         .contentType("application/json")
         .body(
             """
             {
               "majorCode": "%s",
-              "entryYear": "%s",
               "name": "%s"
             }
             """
-                .formatted(majorCode, entryYear, name))
+                .formatted(majorCode, name))
         .when()
         .post("/api/majors")
         .then()
         .statusCode(201)
         .body("id", notNullValue())
         .body("majorCode", equalTo(majorCode))
-        .body("entryYear", equalTo(entryYear))
         .body("name", equalTo(name))
         .extract()
         .jsonPath()
         .getLong("id");
   }
 
-  private String createStudent(long majorId, String name) {
+  private long createProgram(long majorId, String entryYear) {
+    return given()
+        .contentType("application/json")
+        .body(
+            """
+            {
+              "majorId": %d,
+              "entryYear": "%s"
+            }
+            """
+                .formatted(majorId, entryYear))
+        .when()
+        .post("/api/major-programs")
+        .then()
+        .statusCode(201)
+        .body("id", notNullValue())
+        .body("majorId", equalTo((int) majorId))
+        .body("entryYear", equalTo(entryYear))
+        .extract()
+        .jsonPath()
+        .getLong("id");
+  }
+
+  /** Convenience: create a major and one entry-year program, returning the program id. */
+  private long createMajorProgram(String majorCode, String entryYear, String name) {
+    return createProgram(createMajor(majorCode, name), entryYear);
+  }
+
+  private String createStudent(long majorProgramId, String name) {
     return given()
         .contentType("application/json")
         .body(
@@ -44,10 +70,10 @@ class MajorStudentResourceTest {
             {
               "name": "%s",
               "gender": "MALE",
-              "majorId": %d
+              "majorProgramId": %d
             }
             """
-                .formatted(name, majorId))
+                .formatted(name, majorProgramId))
         .when()
         .post("/api/students")
         .then()
@@ -64,12 +90,12 @@ class MajorStudentResourceTest {
 
   @Test
   void shouldCreateMajor() {
-    createMajor("10", "2026", "Computer Science");
+    createMajor("10", "Computer Science");
   }
 
   @Test
   void shouldRejectDuplicateMajor() {
-    createMajor("11", "2026", "Software Engineering");
+    createMajor("11", "Software Engineering");
 
     given()
         .contentType("application/json")
@@ -77,7 +103,6 @@ class MajorStudentResourceTest {
             """
             {
               "majorCode": "11",
-              "entryYear": "2026",
               "name": "Software Engineering"
             }
             """)
@@ -88,20 +113,41 @@ class MajorStudentResourceTest {
   }
 
   @Test
+  void shouldRejectDuplicateProgram() {
+    long majorId = createMajor("12", "Cybersecurity");
+    createProgram(majorId, "2026");
+
+    given()
+        .contentType("application/json")
+        .body(
+            """
+            {
+              "majorId": %d,
+              "entryYear": "2026"
+            }
+            """
+                .formatted(majorId))
+        .when()
+        .post("/api/major-programs")
+        .then()
+        .statusCode(409);
+  }
+
+  @Test
   void shouldCreateStudentWithGeneratedCode() {
-    long majorId = createMajor("28", "2026", "Information Technology");
+    long programId = createMajorProgram("28", "2026", "Information Technology");
 
     // Generated code = entryYear[2:] + majorCode + 4-digit sequence -> 2628XXXX
-    String studentId = createStudent(majorId, "Nguyen Van A");
+    String studentId = createStudent(programId, "Nguyen Van A");
     Assertions.assertTrue(studentId.matches("2628\\d{4}"));
   }
 
   @Test
   void shouldIncrementSequenceWithinSameMajor() {
-    long majorId = createMajor("30", "2026", "Data Science");
+    long programId = createMajorProgram("30", "2026", "Data Science");
 
-    String first = createStudent(majorId, "Student One");
-    String second = createStudent(majorId, "Student Two");
+    String first = createStudent(programId, "Student One");
+    String second = createStudent(programId, "Student Two");
 
     int firstSeq = Integer.parseInt(first.substring(4));
     int secondSeq = Integer.parseInt(second.substring(4));
@@ -110,18 +156,18 @@ class MajorStudentResourceTest {
 
   @Test
   void shouldUseIndependentSequencePerMajor() {
-    long majorA = createMajor("31", "2026", "Major A");
-    long majorB = createMajor("32", "2026", "Major B");
+    long programA = createMajorProgram("31", "2026", "Major A");
+    long programB = createMajorProgram("32", "2026", "Major B");
 
-    String studentA = createStudent(majorA, "Student A");
-    String studentB = createStudent(majorB, "Student B");
+    String studentA = createStudent(programA, "Student A");
+    String studentB = createStudent(programB, "Student B");
 
     Assertions.assertTrue(studentA.matches("2631\\d{4}"));
     Assertions.assertTrue(studentB.matches("2632\\d{4}"));
   }
 
   @Test
-  void shouldReturn404WhenMajorIdDoesNotExist() {
+  void shouldReturn404WhenMajorProgramIdDoesNotExist() {
     given()
         .contentType("application/json")
         .body(
@@ -129,7 +175,7 @@ class MajorStudentResourceTest {
             {
               "name": "Ghost Student",
               "gender": "FEMALE",
-              "majorId": 999999999
+              "majorProgramId": 999999999
             }
             """)
         .when()
@@ -146,7 +192,7 @@ class MajorStudentResourceTest {
             """
             {
               "gender": "MALE",
-              "majorId": 1
+              "majorProgramId": 1
             }
             """)
         .when()

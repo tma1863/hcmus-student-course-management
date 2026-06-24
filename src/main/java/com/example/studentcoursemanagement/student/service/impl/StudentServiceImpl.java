@@ -1,7 +1,7 @@
 package com.example.studentcoursemanagement.student.service.impl;
 
-import com.example.studentcoursemanagement.major.entity.Major;
-import com.example.studentcoursemanagement.major.service.MajorService;
+import com.example.studentcoursemanagement.major.entity.MajorProgram;
+import com.example.studentcoursemanagement.major.service.MajorProgramService;
 import com.example.studentcoursemanagement.student.dao.StudentRepository;
 import com.example.studentcoursemanagement.student.dto.request.CreateStudentRequest;
 import com.example.studentcoursemanagement.student.dto.response.StudentResponse;
@@ -18,22 +18,22 @@ import java.math.BigDecimal;
 public class StudentServiceImpl implements StudentService {
 
   @Inject StudentRepository studentRepository;
-  @Inject MajorService majorService;
+  @Inject MajorProgramService majorProgramService;
   @Inject StudentMapper studentMapper;
 
   @Override
   @Transactional
   public StudentResponse createStudent(CreateStudentRequest request) {
-    Major major = majorService.getMajorById(request.majorId());
+    MajorProgram majorProgram = majorProgramService.getMajorProgramById(request.majorProgramId());
 
     Student student =
         Student.builder()
             .name(request.name().trim())
             .gender(request.gender())
-            .major(major)
+            .majorProgram(majorProgram)
             .status(EStudentStatus.STUDYING)
             .gpa(BigDecimal.ZERO.setScale(2))
-            .studentId(generateStudentId(major.entryYear, major.majorCode))
+            .studentId(generateStudentId(majorProgram.entryYear, majorProgram.major.majorCode))
             .build();
 
     studentRepository.persist(student);

@@ -1,7 +1,7 @@
 package com.example.studentcoursemanagement.student.entity;
 
 import com.example.studentcoursemanagement.common.util.BaseEntity;
-import com.example.studentcoursemanagement.major.entity.Major;
+import com.example.studentcoursemanagement.major.entity.MajorProgram;
 import com.example.studentcoursemanagement.student.enums.EGender;
 import com.example.studentcoursemanagement.student.enums.EStudentStatus;
 import jakarta.persistence.*;
@@ -39,8 +39,8 @@ public class Student extends BaseEntity {
   public EGender gender;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
-  @JoinColumn(name = "major_id", nullable = false, updatable = false)
-  public Major major;
+  @JoinColumn(name = "major_program_id", nullable = false, updatable = false)
+  public MajorProgram majorProgram;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)

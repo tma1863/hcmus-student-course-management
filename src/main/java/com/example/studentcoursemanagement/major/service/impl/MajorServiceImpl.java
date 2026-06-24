@@ -4,7 +4,6 @@ import com.example.studentcoursemanagement.common.exception.ApiException;
 import com.example.studentcoursemanagement.common.exception.ErrorCode;
 import com.example.studentcoursemanagement.major.dao.MajorRepository;
 import com.example.studentcoursemanagement.major.dto.request.CreateMajorRequest;
-import com.example.studentcoursemanagement.major.dto.request.UpdateMajorCreditsRequest;
 import com.example.studentcoursemanagement.major.dto.response.MajorResponse;
 import com.example.studentcoursemanagement.major.entity.Major;
 import com.example.studentcoursemanagement.major.mapper.MajorMapper;
@@ -24,31 +23,15 @@ public class MajorServiceImpl implements MajorService {
   @Transactional
   public MajorResponse createMajor(CreateMajorRequest request) {
     String majorCode = request.majorCode().trim().toUpperCase();
-    String entryYear = request.entryYear().trim();
 
-    if (majorRepository.existsByMajorCodeAndEntryYear(majorCode, entryYear)) {
+    if (majorRepository.existsByMajorCode(majorCode)) {
       throw new ApiException(ErrorCode.MAJOR_ALREADY_EXISTS);
     }
 
-    Major major =
-        Major.builder()
-            .majorCode(majorCode)
-            .entryYear(entryYear)
-            .name(request.name().trim())
-            .totalRequiredCredit(0)
-            .totalOptionalCredit(0)
-            .build();
+    Major major = Major.builder().majorCode(majorCode).name(request.name().trim()).build();
 
     majorRepository.persist(major);
 
-    return majorMapper.toResponse(major);
-  }
-
-  @Override
-  @Transactional
-  public MajorResponse updateMajorCredits(Long id, UpdateMajorCreditsRequest request) {
-    Major major = getMajorById(id);
-    majorMapper.updateCredits(major, request);
     return majorMapper.toResponse(major);
   }
 

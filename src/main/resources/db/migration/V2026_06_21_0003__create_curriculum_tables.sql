@@ -9,11 +9,11 @@ CREATE TABLE courses (
 
 CREATE INDEX idx_courses_course_id ON courses (course_id);
 
--- Curriculum bridge: which course belongs to which major's program, with payload
+-- Curriculum bridge: which course belongs to which major program, with payload
 CREATE TABLE course_majors (
 	id BIGSERIAL PRIMARY KEY,
 	course_id BIGINT NOT NULL,
-	major_id BIGINT NOT NULL,
+	major_program_id BIGINT NOT NULL,
 	credits INTEGER NOT NULL,
 	program_semester INTEGER NOT NULL,
 	created_at TIMESTAMP,
@@ -21,11 +21,11 @@ CREATE TABLE course_majors (
 	CONSTRAINT fk_course_majors_course_id
 		FOREIGN KEY (course_id)
 		REFERENCES courses (id),
-	CONSTRAINT fk_course_majors_major_id
-		FOREIGN KEY (major_id)
-		REFERENCES majors (id),
-	CONSTRAINT uq_course_majors_course_major
-		UNIQUE (course_id, major_id)
+	CONSTRAINT fk_course_majors_major_program_id
+		FOREIGN KEY (major_program_id)
+		REFERENCES major_programs (id),
+	CONSTRAINT uq_course_majors_course_major_program
+		UNIQUE (course_id, major_program_id)
 );
 
 -- Prerequisites: a CourseMajor entry requires foundational Course(s)

@@ -13,8 +13,8 @@ public class StudentMapper {
         student.studentId,
         student.name,
         student.gender,
-        student.major.majorCode,
-        student.major.entryYear,
+        student.majorProgram.major.majorCode,
+        student.majorProgram.entryYear,
         student.status,
         student.gpa);
   }
