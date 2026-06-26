@@ -1,7 +1,6 @@
 package com.example.studentcoursemanagement.major.rest;
 
 import com.example.studentcoursemanagement.major.dto.request.CreateMajorProgramRequest;
-import com.example.studentcoursemanagement.major.dto.request.UpdateMajorProgramCreditsRequest;
 import com.example.studentcoursemanagement.major.dto.response.MajorProgramResponse;
 import com.example.studentcoursemanagement.major.service.MajorProgramService;
 import jakarta.inject.Inject;
@@ -9,7 +8,6 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -30,18 +28,16 @@ public class MajorProgramResource {
     return Response.status(Response.Status.CREATED).entity(response).build();
   }
 
-  @PUT
-  @Path("/{id}/credits")
-  public Response updateCredits(
-          @PathParam("majorId") Long majorId,
-          @PathParam("id") Long id, @Valid UpdateMajorProgramCreditsRequest request) {
-    MajorProgramResponse response = majorProgramService.updateCredits(majorId, id, request);
-    return Response.ok(response).build();
-  }
-
   @GET
   public Response getAllMajorPrograms(
             @PathParam("majorId") Long majorId) {
     return Response.ok(majorProgramService.getAllMajorPrograms(majorId)).build();
+  }
+
+  @GET
+  @Path("/{id}/report")
+  public Response getMajorProgramReport(
+          @PathParam("majorId") Long majorId, @PathParam("id") Long id) {
+    return Response.ok(majorProgramService.getMajorProgramReport(majorId, id)).build();
   }
 }
