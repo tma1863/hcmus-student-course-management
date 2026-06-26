@@ -25,8 +25,8 @@ public class MajorProgramServiceImpl implements MajorProgramService {
 
   @Override
   @Transactional
-  public MajorProgramResponse createMajorProgram(CreateMajorProgramRequest request) {
-    Major major = majorService.getMajorById(request.majorId());
+  public MajorProgramResponse createMajorProgram(Long majorId, CreateMajorProgramRequest request) {
+    Major major = majorService.getMajorById(majorId);
     String entryYear = request.entryYear().trim();
 
     if (majorProgramRepository.existsByMajorIdAndEntryYear(major.id, entryYear)) {
@@ -48,15 +48,20 @@ public class MajorProgramServiceImpl implements MajorProgramService {
 
   @Override
   @Transactional
-  public MajorProgramResponse updateCredits(Long id, UpdateMajorProgramCreditsRequest request) {
+  public MajorProgramResponse updateCredits(
+      Long majorId, Long id, UpdateMajorProgramCreditsRequest request) {
     MajorProgram majorProgram = getMajorProgramById(id);
+    if (!majorProgram.major.id.equals(majorId)) {
+      throw new ApiException(ErrorCode.MAJOR_PROGRAM_NOT_FOUND);
+    }
     majorProgramMapper.updateCredits(majorProgram, request);
     return majorProgramMapper.toResponse(majorProgram);
   }
 
   @Override
-  public List<MajorProgramResponse> getAllMajorPrograms() {
-    return majorProgramMapper.toResponseList(majorProgramRepository.listAll());
+  public List<MajorProgramResponse> getAllMajorPrograms(Long majorId) {
+    majorService.getMajorById(majorId);
+    return majorProgramMapper.toResponseList(majorProgramRepository.listByMajorId(majorId));
   }
 
   @Override

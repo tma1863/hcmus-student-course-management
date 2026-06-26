@@ -45,6 +45,14 @@ public class CourseMajor extends BaseEntity {
   @Max(10)
   public Integer programSemester;
 
+  /**
+   * Whether this course is mandatory ({@code true}) or an elective ({@code false}) within the
+   * program. Required courses carry 3-4 credits; optional courses carry 1-2 credits.
+   */
+  @Column(name = "is_required", nullable = false)
+  @NotNull
+  public Boolean isRequired;
+
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
       name = "course_major_prerequisites",

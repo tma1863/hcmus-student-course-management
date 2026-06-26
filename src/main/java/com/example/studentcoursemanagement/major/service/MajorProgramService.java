@@ -7,11 +7,12 @@ import com.example.studentcoursemanagement.major.entity.MajorProgram;
 import java.util.List;
 
 public interface MajorProgramService {
-  MajorProgramResponse createMajorProgram(CreateMajorProgramRequest request);
+  MajorProgramResponse createMajorProgram(Long majorId, CreateMajorProgramRequest request);
 
-  MajorProgramResponse updateCredits(Long id, UpdateMajorProgramCreditsRequest request);
+  MajorProgramResponse updateCredits(
+      Long majorId, Long id, UpdateMajorProgramCreditsRequest request);
 
-  List<MajorProgramResponse> getAllMajorPrograms();
+  List<MajorProgramResponse> getAllMajorPrograms(Long majorId);
 
   /** Returns the managed MajorProgram or throws ApiException(MAJOR_PROGRAM_NOT_FOUND). */
   MajorProgram getMajorProgramById(Long id);

@@ -40,13 +40,12 @@ class MajorStudentResourceTest {
         .body(
             """
             {
-              "majorId": %d,
               "entryYear": "%s"
             }
             """
-                .formatted(majorId, entryYear))
+                .formatted(entryYear))
         .when()
-        .post("/api/major-programs")
+        .post("/api/majors/" + majorId + "/major-programs")
         .then()
         .statusCode(201)
         .body("id", notNullValue())
@@ -122,13 +121,11 @@ class MajorStudentResourceTest {
         .body(
             """
             {
-              "majorId": %d,
               "entryYear": "2026"
             }
-            """
-                .formatted(majorId))
+            """)
         .when()
-        .post("/api/major-programs")
+        .post("/api/majors/" + majorId + "/major-programs")
         .then()
         .statusCode(409);
   }
