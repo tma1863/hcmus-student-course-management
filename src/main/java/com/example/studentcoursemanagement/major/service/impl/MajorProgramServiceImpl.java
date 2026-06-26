@@ -2,8 +2,8 @@ package com.example.studentcoursemanagement.major.service.impl;
 
 import com.example.studentcoursemanagement.common.exception.ApiException;
 import com.example.studentcoursemanagement.common.exception.ErrorCode;
-import com.example.studentcoursemanagement.course.dao.CourseMajorRepository;
 import com.example.studentcoursemanagement.course.entity.CourseMajor;
+import com.example.studentcoursemanagement.course.service.CourseMajorService;
 import com.example.studentcoursemanagement.major.dao.MajorProgramRepository;
 import com.example.studentcoursemanagement.major.dto.request.CreateMajorProgramRequest;
 import com.example.studentcoursemanagement.major.dto.response.CourseReportResponse;
@@ -33,7 +33,7 @@ public class MajorProgramServiceImpl implements MajorProgramService {
           .thenComparing(cm -> cm.course.courseId);
 
   @Inject MajorProgramRepository majorProgramRepository;
-  @Inject CourseMajorRepository courseMajorRepository;
+  @Inject CourseMajorService courseMajorService;
   @Inject MajorProgramMapper majorProgramMapper;
   @Inject MajorProgramReportMapper majorProgramReportMapper;
   @Inject MajorService majorService;
@@ -72,14 +72,13 @@ public class MajorProgramServiceImpl implements MajorProgramService {
   public MajorProgramReportResponse getMajorProgramReport(Long majorId, Long id) {
     MajorProgram program = getMajorProgramByMajorIdAndId(majorId, id);
 
-    List<CourseMajor> rows = courseMajorRepository.listByMajorProgramIdWithDetails(id);
+    List<CourseMajor> rows = courseMajorService.listProgramCurriculumWithDetails(id);
 
     // Group by recommended semester; TreeMap keeps semesters in ascending order.
     Map<Integer, List<CourseMajor>> bySemester =
         rows.stream()
             .collect(
-                Collectors.groupingBy(
-                    cm -> cm.programSemester, TreeMap::new, Collectors.toList()));
+                Collectors.groupingBy(cm -> cm.programSemester, TreeMap::new, Collectors.toList()));
 
     List<SemesterReportResponse> semesters =
         bySemester.entrySet().stream()
@@ -109,7 +108,7 @@ public class MajorProgramServiceImpl implements MajorProgramService {
   @Transactional
   public void recalculateCredits(Long majorProgramId) {
     MajorProgram program = getMajorProgramById(majorProgramId);
-    List<CourseMajor> rows = courseMajorRepository.listByMajorProgramId(majorProgramId);
+    List<CourseMajor> rows = courseMajorService.listProgramCurriculum(majorProgramId);
 
     int required =
         rows.stream()

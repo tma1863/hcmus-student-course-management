@@ -1,5 +1,7 @@
 package com.example.studentcoursemanagement.student.service.impl;
 
+import com.example.studentcoursemanagement.common.exception.ApiException;
+import com.example.studentcoursemanagement.common.exception.ErrorCode;
 import com.example.studentcoursemanagement.major.entity.MajorProgram;
 import com.example.studentcoursemanagement.major.service.MajorProgramService;
 import com.example.studentcoursemanagement.student.dao.StudentRepository;
@@ -13,6 +15,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @ApplicationScoped
 public class StudentServiceImpl implements StudentService {
@@ -39,6 +42,13 @@ public class StudentServiceImpl implements StudentService {
     studentRepository.persist(student);
 
     return studentMapper.toResponse(student);
+  }
+
+  @Override
+  public Student getStudentById(UUID id) {
+    return studentRepository
+        .findByIdOptional(id)
+        .orElseThrow(() -> new ApiException(ErrorCode.STUDENT_NOT_FOUND));
   }
 
   private String generateStudentId(String entryYear, String majorCode) {

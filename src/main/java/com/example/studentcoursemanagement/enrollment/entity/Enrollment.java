@@ -15,12 +15,12 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 /**
- * One student's registration in a single offered class ({@link OpenCourse}) for a term, carrying the
- * score earned once the term has been studied.
+ * One student's registration in a single offered class ({@link OpenCourse}) for a term, carrying
+ * the score earned once the term has been studied.
  *
- * <p>A retake is a <em>separate</em> {@code Enrollment} row against a later same-parity open course;
- * the {@code (student_id, open_course_id)} uniqueness allows it because the term (and thus the open
- * course) differs. {@link #attemptNumber} distinguishes the first attempt from retakes.
+ * <p>A retake is a <em>separate</em> {@code Enrollment} row against a later same-parity open
+ * course; the {@code (student_id, open_course_id)} uniqueness allows it because the term (and thus
+ * the open course) differs. {@link #attemptNumber} distinguishes the first attempt from retakes.
  */
 @Entity
 @Table(

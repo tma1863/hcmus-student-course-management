@@ -22,7 +22,8 @@ class CourseMajorResourceTest {
   /** Courses have no creation API (they are seeded), so insert them directly in a committed tx. */
   private void seedCourse(String courseId, String name) {
     QuarkusTransaction.requiringNew()
-        .run(() -> courseRepository.persist(Course.builder().courseId(courseId).name(name).build()));
+        .run(
+            () -> courseRepository.persist(Course.builder().courseId(courseId).name(name).build()));
   }
 
   private long createMajor(String majorCode, String name) {
@@ -59,7 +60,9 @@ class CourseMajorResourceTest {
     return "/api/majors/" + majorId + "/major-programs/" + programId + "/report";
   }
 
-  /** Builds the add-course JSON body; pass {@code prereqs} as already-quoted JSON array contents. */
+  /**
+   * Builds the add-course JSON body; pass {@code prereqs} as already-quoted JSON array contents.
+   */
   private String addBody(
       String courseId, int credits, int semester, boolean required, String prereqsJson) {
     return """
@@ -178,11 +181,7 @@ class CourseMajorResourceTest {
         .body("totalOptionalCredit", equalTo(2));
 
     // Remove the elective -> optional total recomputed to 0.
-    given()
-        .when()
-        .delete(addCoursePath(majorId, programId) + "/DEL01002")
-        .then()
-        .statusCode(204);
+    given().when().delete(addCoursePath(majorId, programId) + "/DEL01002").then().statusCode(204);
 
     given()
         .when()
@@ -272,11 +271,7 @@ class CourseMajorResourceTest {
     long programId = createProgram(majorId, "2025");
     long otherMajorId = createMajor("45", "Chemistry");
 
-    given()
-        .when()
-        .get(reportPath(otherMajorId, programId))
-        .then()
-        .statusCode(404);
+    given().when().get(reportPath(otherMajorId, programId)).then().statusCode(404);
   }
 
   @Test

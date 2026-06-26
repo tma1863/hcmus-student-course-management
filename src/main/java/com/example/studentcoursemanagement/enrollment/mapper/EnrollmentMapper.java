@@ -9,8 +9,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.math.BigDecimal;
 
 /**
- * Hand-written mapper (like {@code StudentMapper}) because the response carries grade fields derived
- * from the score via {@link GradeScale}, not plain field copies.
+ * Hand-written mapper (like {@code StudentMapper}) because the response carries grade fields
+ * derived from the score via {@link GradeScale}, not plain field copies.
  */
 @ApplicationScoped
 public class EnrollmentMapper {

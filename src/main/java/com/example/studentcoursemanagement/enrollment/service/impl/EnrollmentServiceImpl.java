@@ -3,9 +3,9 @@ package com.example.studentcoursemanagement.enrollment.service.impl;
 import com.example.studentcoursemanagement.common.exception.ApiException;
 import com.example.studentcoursemanagement.common.exception.ErrorCode;
 import com.example.studentcoursemanagement.common.util.GradeScale;
-import com.example.studentcoursemanagement.course.dao.OpenCourseRepository;
 import com.example.studentcoursemanagement.course.entity.OpenCourse;
 import com.example.studentcoursemanagement.course.enums.EOpenCourseStatus;
+import com.example.studentcoursemanagement.course.service.OpenCourseService;
 import com.example.studentcoursemanagement.enrollment.dao.EnrollmentRepository;
 import com.example.studentcoursemanagement.enrollment.dto.request.CreateEnrollmentRequest;
 import com.example.studentcoursemanagement.enrollment.dto.request.RecordScoreRequest;
@@ -14,8 +14,8 @@ import com.example.studentcoursemanagement.enrollment.entity.Enrollment;
 import com.example.studentcoursemanagement.enrollment.enums.EEnrollmentStatus;
 import com.example.studentcoursemanagement.enrollment.mapper.EnrollmentMapper;
 import com.example.studentcoursemanagement.enrollment.service.EnrollmentService;
-import com.example.studentcoursemanagement.student.dao.StudentRepository;
 import com.example.studentcoursemanagement.student.entity.Student;
+import com.example.studentcoursemanagement.student.service.StudentService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -39,22 +39,15 @@ public class EnrollmentServiceImpl implements EnrollmentService {
           .thenComparing(e -> e.attemptNumber);
 
   @Inject EnrollmentRepository enrollmentRepository;
-  @Inject OpenCourseRepository openCourseRepository;
-  @Inject StudentRepository studentRepository;
+  @Inject OpenCourseService openCourseService;
+  @Inject StudentService studentService;
   @Inject EnrollmentMapper enrollmentMapper;
 
   @Override
   @Transactional
   public EnrollmentResponse enroll(CreateEnrollmentRequest request) {
-    Student student =
-        studentRepository
-            .findByIdOptional(request.studentId())
-            .orElseThrow(() -> new ApiException(ErrorCode.STUDENT_NOT_FOUND));
-
-    OpenCourse openCourse =
-        openCourseRepository
-            .findByIdOptional(request.openCourseId())
-            .orElseThrow(() -> new ApiException(ErrorCode.OPEN_COURSE_NOT_FOUND));
+    Student student = studentService.getStudentById(request.studentId());
+    OpenCourse openCourse = openCourseService.getOpenCourseById(request.openCourseId());
 
     if (openCourse.status != EOpenCourseStatus.OPEN) {
       throw new ApiException(ErrorCode.OPEN_COURSE_NOT_OPEN);
@@ -62,13 +55,12 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     if (openCourse.enrolledCount >= openCourse.maxStudents) {
       throw new ApiException(ErrorCode.OPEN_COURSE_FULL);
     }
-    if (enrollmentRepository
-        .findByStudentAndOpenCourse(student.id, openCourse.id)
-        .isPresent()) {
+    if (enrollmentRepository.findByStudentAndOpenCourse(student.id, openCourse.id).isPresent()) {
       throw new ApiException(ErrorCode.ALREADY_ENROLLED);
     }
 
-    long priorAttempts = enrollmentRepository.countAttempts(student.id, openCourse.courseMajor.course.id);
+    long priorAttempts =
+        enrollmentRepository.countAttempts(student.id, openCourse.courseMajor.course.id);
 
     Enrollment enrollment =
         Enrollment.builder()
@@ -113,10 +105,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
   @Override
   @Transactional
   public void recalculateGpa(UUID studentId) {
-    Student student =
-        studentRepository
-            .findByIdOptional(studentId)
-            .orElseThrow(() -> new ApiException(ErrorCode.STUDENT_NOT_FOUND));
+    Student student = studentService.getStudentById(studentId);
 
     List<Enrollment> graded = enrollmentRepository.listGradedByStudentIdWithDetails(studentId);
 
@@ -136,7 +125,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     for (Enrollment enrollment : latestPerCourse.values()) {
       int credits = enrollment.openCourse.courseMajor.credits;
       weightedPoints =
-          weightedPoints.add(GradeScale.gradePointOf(enrollment.score).multiply(BigDecimal.valueOf(credits)));
+          weightedPoints.add(
+              GradeScale.gradePointOf(enrollment.score).multiply(BigDecimal.valueOf(credits)));
       totalCredits += credits;
     }
 

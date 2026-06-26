@@ -23,21 +23,20 @@ public class MajorProgramResource {
 
   @POST
   public Response createMajorProgram(
-          @PathParam("majorId") Long majorId, @Valid CreateMajorProgramRequest request) {
+      @PathParam("majorId") Long majorId, @Valid CreateMajorProgramRequest request) {
     MajorProgramResponse response = majorProgramService.createMajorProgram(majorId, request);
     return Response.status(Response.Status.CREATED).entity(response).build();
   }
 
   @GET
-  public Response getAllMajorPrograms(
-            @PathParam("majorId") Long majorId) {
+  public Response getAllMajorPrograms(@PathParam("majorId") Long majorId) {
     return Response.ok(majorProgramService.getAllMajorPrograms(majorId)).build();
   }
 
   @GET
   @Path("/{id}/report")
   public Response getMajorProgramReport(
-          @PathParam("majorId") Long majorId, @PathParam("id") Long id) {
+      @PathParam("majorId") Long majorId, @PathParam("id") Long id) {
     return Response.ok(majorProgramService.getMajorProgramReport(majorId, id)).build();
   }
 }

@@ -37,7 +37,8 @@ public class CourseMajorServiceImpl implements CourseMajorService {
   @Transactional
   public CourseMajorResponse addCourseToProgram(
       Long majorId, Long majorProgramId, AddCourseToProgramRequest request) {
-    MajorProgram program = majorProgramService.getMajorProgramByMajorIdAndId(majorId, majorProgramId);
+    MajorProgram program =
+        majorProgramService.getMajorProgramByMajorIdAndId(majorId, majorProgramId);
 
     Course course = findCourse(request.courseId());
     if (courseMajorRepository.existsByProgramAndCourseId(majorProgramId, course.courseId)) {
@@ -76,6 +77,16 @@ public class CourseMajorServiceImpl implements CourseMajorService {
     courseMajorRepository.delete(courseMajor);
 
     majorProgramService.recalculateCredits(majorProgramId);
+  }
+
+  @Override
+  public List<CourseMajor> listProgramCurriculumWithDetails(Long majorProgramId) {
+    return courseMajorRepository.listByMajorProgramIdWithDetails(majorProgramId);
+  }
+
+  @Override
+  public List<CourseMajor> listProgramCurriculum(Long majorProgramId) {
+    return courseMajorRepository.listByMajorProgramId(majorProgramId);
   }
 
   private Course findCourse(String courseId) {

@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
- * A single enrollment with its resolved course context and derived grade. {@code score},
- * {@code letter} and {@code gradePoint} are {@code null} while the enrollment is {@code ENROLLED}.
+ * A single enrollment with its resolved course context and derived grade. {@code score}, {@code
+ * letter} and {@code gradePoint} are {@code null} while the enrollment is {@code ENROLLED}.
  *
  * @param term the operational term within the academic year ({@code OpenCourse.semester}, 1 or 2)
  */

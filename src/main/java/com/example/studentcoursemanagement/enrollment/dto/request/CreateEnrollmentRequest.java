@@ -9,5 +9,4 @@ import java.util.UUID;
  * @param studentId the student's primary key
  * @param openCourseId the open course to enroll in (must be {@code OPEN} with seats left)
  */
-public record CreateEnrollmentRequest(
-    @NotNull UUID studentId, @NotNull Long openCourseId) {}
+public record CreateEnrollmentRequest(@NotNull UUID studentId, @NotNull Long openCourseId) {}

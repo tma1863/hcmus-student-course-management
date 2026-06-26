@@ -31,8 +31,7 @@ public class EnrollmentRepository implements PanacheRepository<Enrollment> {
 
   /** How many times this student has already enrolled in the given course (across all terms). */
   public long countAttempts(UUID studentId, Long courseId) {
-    return count(
-        "student.id = ?1 and openCourse.courseMajor.course.id = ?2", studentId, courseId);
+    return count("student.id = ?1 and openCourse.courseMajor.course.id = ?2", studentId, courseId);
   }
 
   /**
