@@ -11,18 +11,14 @@ import java.util.Optional;
 @ApplicationScoped
 public class CourseMajorRepository implements PanacheRepository<CourseMajor> {
 
-  /**
-   * All curriculum rows of a program, ordered by recommended semester, with {@code course} and
-   * {@code prerequisites} eagerly loaded <em>for this query only</em> via an entity graph — the
-   * mappings stay {@code LAZY}. Avoids N+1 selects when building the curriculum report.
-   */
   public List<CourseMajor> listByMajorProgramIdWithDetails(Long majorProgramId) {
-    EntityGraph<CourseMajor> graph = getEntityManager().createEntityGraph(CourseMajor.class);
-    graph.addAttributeNodes("course", "prerequisites");
+//    EntityGraph<CourseMajor> graph = getEntityManager().createEntityGraph(CourseMajor.class);
+//    graph.addAttributeNodes("course", "prerequisites");
 
-    return find("majorProgram.id", Sort.by("programSemester"), majorProgramId)
-        .withHint("jakarta.persistence.fetchgraph", graph)
-        .list();
+      EntityGraph<?> graph = getEntityManager().getEntityGraph("CourseMajor.withDetails");
+      return find("majorProgram.id", Sort.by("programSemester"), majorProgramId)
+              .withHint("jakarta.persistence.fetchgraph", graph)
+              .list();
   }
 
   /** Curriculum rows of a program (no eager fetching) — used to recompute credit totals. */

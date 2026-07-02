@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class CourseMajorServiceImpl implements CourseMajorService {
@@ -45,7 +45,7 @@ public class CourseMajorServiceImpl implements CourseMajorService {
       throw new ApiException(ErrorCode.COURSE_ALREADY_IN_PROGRAM);
     }
 
-    List<Course> prerequisites = resolvePrerequisites(request.prerequisiteCourseIds(), course);
+    List<Course> prerequisites = normalizePrerequisites(request.prerequisiteCourseIds(), course);
     assertNoCycle(majorProgramId, course, prerequisites);
 
     CourseMajor courseMajor =
@@ -95,47 +95,54 @@ public class CourseMajorServiceImpl implements CourseMajorService {
         .orElseThrow(() -> new ApiException(ErrorCode.COURSE_NOT_FOUND));
   }
 
-  /** Resolves prerequisite business keys to managed courses, de-duplicated and order-preserving. */
-  private List<Course> resolvePrerequisites(List<String> prerequisiteCourseIds, Course target) {
-    if (prerequisiteCourseIds == null || prerequisiteCourseIds.isEmpty()) {
+  /**
+   * Check and clean the list of courses requested from users input, including the de-duplicated and
+   * order-preserving
+   *
+   * @param prerequisiteCourseIds
+   * @param target
+   * step 1: check null or empty, return empty list --> .filter()
+   * step 2: trim the list and remove null or blank, de-duplicate and preserve order by using Set, LinkedHashSet --> in
+   *     stream, use .distinct(). .trim()
+   * step 3: check if any courseId in the list is equal to target.courseId, if yes, throw ApiException with ErrorCode.PREREQUISITE_CYCLE_DETECTED
+   * step 4: find the course by courseId, if not found, throw ApiException with ErrorCode.COURSE_NOT_FOUND step 5: return the list of Course --> .map() and collect to list
+   */
+  private List<Course> normalizePrerequisites(List<String> prerequisiteCourseIds, Course target) {
+    if (prerequisiteCourseIds == null) {
       return new ArrayList<>();
     }
-    Set<String> keys = new LinkedHashSet<>();
-    for (String key : prerequisiteCourseIds) {
-      if (key != null && !key.isBlank()) {
-        keys.add(key.trim());
-      }
-    }
-    List<Course> prerequisites = new ArrayList<>();
-    for (String key : keys) {
-      // A course requiring itself is a trivial 1-node cycle.
-      if (key.equals(target.courseId)) {
-        throw new ApiException(ErrorCode.PREREQUISITE_CYCLE_DETECTED);
-      }
-      prerequisites.add(findCourse(key));
-    }
-    return prerequisites;
+
+    return prerequisiteCourseIds.stream()
+        .filter(id -> id != null && !id.isBlank())
+        .map(String::trim)
+        .distinct()
+        .map(
+            id -> {
+              if (id.equals(target.courseId)) {
+                throw new ApiException(ErrorCode.PREREQUISITE_CYCLE_DETECTED);
+              }
+              return findCourse(id);
+            })
+        .collect(Collectors.toCollection(ArrayList::new));
   }
 
   /**
-   * Rejects prerequisites that would introduce a cyclic dependency within this program. Edge {@code
-   * A -> B} means "A requires B". Adding {@code newCourse -> p} forms a cycle iff {@code p} can
-   * already reach {@code newCourse} along existing requirement edges.
+
    */
   private void assertNoCycle(Long majorProgramId, Course newCourse, List<Course> prerequisites) {
     if (prerequisites.isEmpty()) {
       return;
     }
-    Map<String, List<String>> requires = buildRequirementGraph(majorProgramId);
+    Map<String, List<String>> requires = mapCoursesToPrerequisites(majorProgramId);
     for (Course prerequisite : prerequisites) {
-      if (canReach(requires, prerequisite.courseId, newCourse.courseId)) {
+      if (isPrerequisiteOf(requires, prerequisite.courseId, newCourse.courseId)) {
         throw new ApiException(ErrorCode.PREREQUISITE_CYCLE_DETECTED);
       }
     }
   }
 
   /** Adjacency map of "requires" edges for the program's existing curriculum rows. */
-  private Map<String, List<String>> buildRequirementGraph(Long majorProgramId) {
+  private Map<String, List<String>> mapCoursesToPrerequisites(Long majorProgramId) {
     Map<String, List<String>> requires = new HashMap<>();
     for (CourseMajor row : courseMajorRepository.listByMajorProgramIdWithDetails(majorProgramId)) {
       List<String> targets =
@@ -147,8 +154,8 @@ public class CourseMajorServiceImpl implements CourseMajorService {
     return requires;
   }
 
-  /** BFS: is {@code target} reachable from {@code start} following requirement edges? */
-  private boolean canReach(Map<String, List<String>> requires, String start, String target) {
+  /** BFS*/
+  private boolean isPrerequisiteOf(Map<String, List<String>> requires, String start, String target) {
     Set<String> visited = new HashSet<>();
     Deque<String> queue = new ArrayDeque<>();
     queue.add(start);
