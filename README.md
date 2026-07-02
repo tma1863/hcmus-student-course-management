@@ -29,13 +29,24 @@ The current codebase includes:
 
 Application config is in `src/main/resources/application.properties`.
 
+Environment variables are read from a local `.env` file (used by Docker Compose,
+and by the app when run on the host). Create it from the template before your
+first run:
+
+```bash
+cp .env.example .env
+```
+
 Default database values:
 
 - `DB_USERNAME=postgres`
 - `DB_PASSWORD=postgres`
 - `DB_JDBC_URL=jdbc:postgresql://localhost:5432/student_course_management`
 
-You can override them by exporting environment variables before starting the app.
+`docker-compose.yml` reads `POSTGRES_*` and `APP_PORT` from `.env`; inside the
+`app` container the `DB_*` values are overridden automatically to target the
+`postgres` service. When running on the host, the `DB_*` values from `.env`
+(or exported environment variables) are used instead.
 
 ## Run locally (dev mode)
 
@@ -53,22 +64,51 @@ Useful local URLs:
 
 ## Run with Docker Compose
 
-This starts both PostgreSQL and the app:
-
-```bash
-docker compose up --build
-```
+Compose is the recommended way to run everything. The `app` service builds from
+`src/main/docker/Dockerfile.dev` (a Maven image) and runs Quarkus in **dev mode
+with live reload**, bind-mounting the project into `/app`. The `postgres`
+service holds the database.
 
 Services defined in `docker-compose.yml`:
 
 - `postgres` on port `5432`
-- `app` on port `8080`
+- `app` on port `8080` (Quarkus dev mode, hot reload on source changes)
 
-Stop services:
+Common commands:
 
 ```bash
+# Start both services, rebuilding the app image (foreground, streams logs)
+docker compose up --build
+
+# Start in the background
+docker compose up --build -d
+
+# Tail logs (all services, or just the app)
+docker compose logs -f
+docker compose logs -f app
+
+# Open a shell inside the running app container
+docker compose exec app bash
+
+# Run a one-off Maven command inside the app container
+docker compose exec app ./mvnw test
+
+# Stop services (keeps the database volume)
 docker compose down
+
+# Stop services AND wipe the Postgres data volume (fresh DB next start)
+docker compose down -v
+
+# Rebuild the app image from scratch (e.g. after dependency changes)
+docker compose build --no-cache app
 ```
+
+> **Heads up — the container writes `target/` as root.** The `app` container runs
+> as root and shares the project directory via a bind mount, so any build it
+> performs (`quarkus:dev`, `spotless:apply`, `mvnw test`) creates `target/` files
+> owned by `root` on the host. If you afterwards run `./mvnw` **directly on the
+> host**, the build fails with `Operation not permitted` because your user can't
+> overwrite root-owned files. See [Troubleshooting](#troubleshooting).
 
 ## Build and test
 
@@ -107,6 +147,43 @@ Migrations run automatically at startup via:
 - `src/main/java/com/example/studentcoursemanagement/major`
 - `src/main/java/com/example/studentcoursemanagement/student`
 - `src/main/resources/db/migration`
+
+## Troubleshooting
+
+### `mvn`/`./mvnw` fails on the host with `Operation not permitted` copying to `target/`
+
+Symptom (during `resources:resources` or `compile`):
+
+```
+Failed to copy .../target/classes/db/migration/....sql: Operation not permitted
+```
+
+**Cause:** the `app` container runs as root and bind-mounts the project, so a
+build performed inside the container (`docker compose up`, `spotless:apply`,
+`quarkus:dev`) leaves `target/` owned by `root`. A subsequent host-side `./mvnw`
+runs as your user and cannot overwrite those files. Confirm with:
+
+```bash
+ls -ld target        # shows owner root instead of your user
+```
+
+**Fix — remove the root-owned build dir and rebuild as yourself:**
+
+```bash
+sudo rm -rf target && ./mvnw compile
+```
+
+Or, to keep the artifacts, just reclaim ownership:
+
+```bash
+sudo chown -R "$(id -u):$(id -g)" target
+```
+
+**Avoid it recurring:** pick one build path per session. Either build via the
+container (`docker compose exec app ./mvnw ...`) **or** on the host (`./mvnw
+...`) — don't mix them against the same `target/`. Note also that `./mvnw
+quarkus:dev` on the host and `docker compose up` both bind to port `8080`, so
+run only one at a time.
 
 ## Reference
 
