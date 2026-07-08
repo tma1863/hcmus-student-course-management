@@ -12,13 +12,13 @@ import java.util.Optional;
 public class CourseMajorRepository implements PanacheRepository<CourseMajor> {
 
   public List<CourseMajor> listByMajorProgramIdWithDetails(Long majorProgramId) {
-//    EntityGraph<CourseMajor> graph = getEntityManager().createEntityGraph(CourseMajor.class);
-//    graph.addAttributeNodes("course", "prerequisites");
+    //    EntityGraph<CourseMajor> graph = getEntityManager().createEntityGraph(CourseMajor.class);
+    //    graph.addAttributeNodes("course", "prerequisites");
 
-      EntityGraph<?> graph = getEntityManager().getEntityGraph("CourseMajor.withDetails");
-      return find("majorProgram.id", Sort.by("programSemester"), majorProgramId)
-              .withHint("jakarta.persistence.fetchgraph", graph)
-              .list();
+    EntityGraph<?> graph = getEntityManager().getEntityGraph("CourseMajor.withDetails");
+    return find("majorProgram.id", Sort.by("programSemester"), majorProgramId)
+        .withHint("jakarta.persistence.fetchgraph", graph)
+        .list();
   }
 
   /** Curriculum rows of a program (no eager fetching) — used to recompute credit totals. */

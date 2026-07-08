@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f //wsl.localhost/Ubuntu/home/tmanh/hcmus-student-course-management/src/main/resources/db/migration/V2026_07_02_0007__adjust_enrollment_attempt_numbers.sql)",
+      "Bash(echo \"removed obsolete 0007\")",
+      "Read(///wsl.localhost/Ubuntu/home/tmanh/hcmus-student-course-management/src/main/resources/db/**)"
+    ]
+  }
+}

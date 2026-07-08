@@ -100,12 +100,12 @@ public class CourseMajorServiceImpl implements CourseMajorService {
    * order-preserving
    *
    * @param prerequisiteCourseIds
-   * @param target
-   * step 1: check null or empty, return empty list --> .filter()
-   * step 2: trim the list and remove null or blank, de-duplicate and preserve order by using Set, LinkedHashSet --> in
-   *     stream, use .distinct(). .trim()
-   * step 3: check if any courseId in the list is equal to target.courseId, if yes, throw ApiException with ErrorCode.PREREQUISITE_CYCLE_DETECTED
-   * step 4: find the course by courseId, if not found, throw ApiException with ErrorCode.COURSE_NOT_FOUND step 5: return the list of Course --> .map() and collect to list
+   * @param target step 1: check null or empty, return empty list --> .filter() step 2: trim the
+   *     list and remove null or blank, de-duplicate and preserve order by using Set, LinkedHashSet
+   *     --> in stream, use .distinct(). .trim() step 3: check if any courseId in the list is equal
+   *     to target.courseId, if yes, throw ApiException with ErrorCode.PREREQUISITE_CYCLE_DETECTED
+   *     step 4: find the course by courseId, if not found, throw ApiException with
+   *     ErrorCode.COURSE_NOT_FOUND step 5: return the list of Course --> .map() and collect to list
    */
   private List<Course> normalizePrerequisites(List<String> prerequisiteCourseIds, Course target) {
     if (prerequisiteCourseIds == null) {
@@ -126,9 +126,7 @@ public class CourseMajorServiceImpl implements CourseMajorService {
         .collect(Collectors.toCollection(ArrayList::new));
   }
 
-  /**
-
-   */
+  /** */
   private void assertNoCycle(Long majorProgramId, Course newCourse, List<Course> prerequisites) {
     if (prerequisites.isEmpty()) {
       return;
@@ -154,8 +152,9 @@ public class CourseMajorServiceImpl implements CourseMajorService {
     return requires;
   }
 
-  /** BFS*/
-  private boolean isPrerequisiteOf(Map<String, List<String>> requires, String start, String target) {
+  /** BFS */
+  private boolean isPrerequisiteOf(
+      Map<String, List<String>> requires, String start, String target) {
     Set<String> visited = new HashSet<>();
     Deque<String> queue = new ArrayDeque<>();
     queue.add(start);
